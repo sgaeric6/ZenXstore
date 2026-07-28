@@ -1,21 +1,14 @@
 import express from "express";
+import auth from "../middleware/auth.js";
+import {
+  getProfile,
+  updateProfile
+} from "../controllers/userController.js";
 
 const router = express.Router();
 
-// Get all users
-router.get("/", async (req, res) => {
-  res.json({
-    success: true,
-    users: []
-  });
-});
+router.get("/profile", auth, getProfile);
 
-// Get user profile
-router.get("/:id", async (req, res) => {
-  res.json({
-    success: true,
-    userId: req.params.id
-  });
-});
+router.put("/profile", auth, updateProfile);
 
 export default router;
