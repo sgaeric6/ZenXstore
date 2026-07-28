@@ -1,21 +1,17 @@
 import express from "express";
 
+import {
+  initializePayment,
+  verifyPayment,
+  refundPayment
+} from "../controllers/paymentController.js";
+
 const router = express.Router();
 
-// Initialize Paystack payment
-router.post("/paystack", async (req, res) => {
-  res.json({
-    success: true,
-    message: "Payment initialized"
-  });
-});
+router.post("/initialize", initializePayment);
 
-// Verify payment
-router.get("/verify/:reference", async (req, res) => {
-  res.json({
-    success: true,
-    reference: req.params.reference
-  });
-});
+router.get("/verify/:reference", verifyPayment);
+
+router.post("/refund", refundPayment);
 
 export default router;
