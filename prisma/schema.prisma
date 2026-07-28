@@ -31,8 +31,12 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  accounts  Account[]
-  orders    Order[]
+  accounts      Account[] @relation("UserAccounts")
+  orders        Order[]
+  chats         Chat[]    @relation("UserChats")
+  supportChats  Chat[]    @relation("SupportChats")
+  messages      Message[]
+  ratings       Rating[]
 }
 
 model Account {
@@ -42,11 +46,16 @@ model Account {
   price       Float
   gameLevel   String
   image       String?
+  sold        Boolean  @default(false)
 
   sellerId    String
-  seller      User     @relation(fields: [sellerId], references: [id])
+  seller      User     @relation("UserAccounts", fields: [sellerId], references: [id])
+
+  orders      Order[]
+  ratings     Rating[]
 
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Order {
@@ -56,38 +65,220 @@ model Order {
   buyer       User        @relation(fields: [buyerId], references: [id])
 
   accountId   String
+  account     Account     @relation(fields: [accountId], references: [id])
+
   status      OrderStatus @default(PENDING)
 
-  createdAt   DateTime    @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
+
 model Chat {
   id          String   @id @default(cuid())
 
   userId      String
-  supportId   String?
+  user        User     @relation("UserChats", fields: [userId], references: [id])
 
-  createdAt   DateTime @default(now())
+  supportId   String?
+  support     User?    @relation("SupportChats", fields: [supportId], references: [id])
 
   messages    Message[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Message {
   id          String   @id @default(cuid())
 
   chatId      String
+  chat        Chat     @relation(fields: [chatId], references: [id])
 
-  sender      String
+  senderId    String
+  sender      User     @relation(fields: [senderId], references: [id])
 
   message     String
 
   createdAt   DateTime @default(now())
-}model Rating {
+  updatedAt   DateTime @updatedAt
+}
 
-  id          String @id @default(cuid())
+model Rating {
+  id          String   @id @default(cuid())
 
   stars       Int
-
   comment     String?
 
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+
+  accountId   String
+  account     Account  @relation(fields: [accountId], references: [id])
+
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  SUPPORT
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String?
+  role      Role     @default(USER)
+  verified  Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accounts     Account[] @relation("UserAccounts")
+  orders       Order[]
+  chats        Chat[]    @relation("UserChats")
+  supportChats Chat[]    @relation("SupportChats")
+  messages     Message[]
+  ratings      Rating[]
+}
+
+model Account {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  price       Decimal
+  gameLevel   String
+  image       String?
+  sold        Boolean  @default(false)
+
+  sellerId String
+  seller   User @relation(
+    "UserAccounts",
+    fields: [sellerId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  orders  Order[]
+  ratings Rating[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Order {
+  id String @id @default(cuid())
+
+  buyerId String
+  buyer   User @relation(
+    fields: [buyerId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  accountId String
+  account   Account @relation(
+    fields: [accountId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  amount           Decimal
+  paymentReference String? @unique
+  paidAt           DateTime?
+
+  status OrderStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Chat {
+  id String @id @default(cuid())
+
+  userId String
+  user   User @relation(
+    "UserChats",
+    fields: [userId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  supportId String?
+  support   User? @relation(
+    "SupportChats",
+    fields: [supportId],
+    references: [id]
+  )
+
+  messages Message[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Message {
+  id String @id @default(cuid())
+
+  chatId String
+  chat   Chat @relation(
+    fields: [chatId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  senderId String
+  sender   User @relation(
+    fields: [senderId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  message String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Rating {
+  id String @id @default(cuid())
+
+  stars   Int
+  comment String?
+
+  userId String
+  user   User @relation(
+    fields: [userId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  accountId String
+  account   Account @relation(
+    fields: [accountId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, accountId])
 }
