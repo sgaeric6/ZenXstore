@@ -22,3 +22,5 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+import listingRoutes from "./routes/listings.js";
+app.use("/api/listings", listingRoutes);
