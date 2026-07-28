@@ -1,29 +1,20 @@
 import express from "express";
 
+import {
+  getChats,
+  sendMessage,
+  createComplaint,
+  submitAccountSale
+} from "../controllers/supportController.js";
+
 const router = express.Router();
 
-// User submits complaint
-router.post("/complaint", async (req, res) => {
-  res.json({
-    success: true,
-    message: "Complaint submitted successfully"
-  });
-});
+router.get("/chats", getChats);
 
-// User submits account for sale
-router.post("/sell", async (req, res) => {
-  res.json({
-    success: true,
-    message: "Account submitted for review"
-  });
-});
+router.post("/message", sendMessage);
 
-// Get support chats
-router.get("/chats", async (req, res) => {
-  res.json({
-    success: true,
-    chats: []
-  });
-});
+router.post("/complaint", createComplaint);
+
+router.post("/sell", submitAccountSale);
 
 export default router;
