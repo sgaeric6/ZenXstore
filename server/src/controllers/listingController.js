@@ -1,39 +1,49 @@
-import prisma from "../config/prisma.js";
+import * as listingService from "../services/listingService.js";
 
 export const getListings = async (req, res) => {
-
-  const listings = await prisma.account.findMany();
+  const listings = await listingService.getAllListings();
 
   res.json({
     success: true,
     listings
   });
+};
 
+export const getListing = async (req, res) => {
+  const listing = await listingService.getListing(req.params.id);
+
+  res.json({
+    success: true,
+    listing
+  });
 };
 
 export const createListing = async (req, res) => {
+  const listing = await listingService.createListing(req.body);
 
-  res.json({
+  res.status(201).json({
     success: true,
-    message: "Listing created."
+    listing
   });
-
 };
 
 export const updateListing = async (req, res) => {
+  const listing = await listingService.updateListing(
+    req.params.id,
+    req.body
+  );
 
   res.json({
     success: true,
-    message: "Listing updated."
+    listing
   });
-
 };
 
 export const deleteListing = async (req, res) => {
+  await listingService.deleteListing(req.params.id);
 
   res.json({
     success: true,
-    message: "Listing deleted."
+    message: "Listing deleted successfully."
   });
-
 };
