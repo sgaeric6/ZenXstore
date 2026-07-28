@@ -13,6 +13,13 @@ enum Role {
   ADMIN
 }
 
+enum OrderStatus {
+  PENDING
+  PAID
+  COMPLETED
+  CANCELLED
+}
+
 model User {
   id        String   @id @default(cuid())
   name      String
@@ -20,6 +27,36 @@ model User {
   password  String
   role      Role     @default(USER)
   verified  Boolean  @default(false)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  accounts  Account[]
+  orders    Order[]
+}
+
+model Account {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  price       Float
+  gameLevel   String
+  image       String?
+
+  sellerId    String
+  seller      User     @relation(fields: [sellerId], references: [id])
+
+  createdAt   DateTime @default(now())
+}
+
+model Order {
+  id          String      @id @default(cuid())
+
+  buyerId     String
+  buyer       User        @relation(fields: [buyerId], references: [id])
+
+  accountId   String
+  status      OrderStatus @default(PENDING)
+
+  createdAt   DateTime    @default(now())
 }
