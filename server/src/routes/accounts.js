@@ -1,29 +1,23 @@
 import express from "express";
 
+import {
+  getAccounts,
+  getAccount,
+  createAccount,
+  updateAccount,
+  deleteAccount
+} from "../controllers/accountController.js";
+
 const router = express.Router();
 
-// Get all account listings
-router.get("/", async (req, res) => {
-  res.json({
-    success: true,
-    accounts: []
-  });
-});
+router.get("/", getAccounts);
 
-// Get account by ID
-router.get("/:id", async (req, res) => {
-  res.json({
-    success: true,
-    accountId: req.params.id
-  });
-});
+router.get("/:id", getAccount);
 
-// Create a new account listing
-router.post("/", async (req, res) => {
-  res.json({
-    success: true,
-    message: "Account submitted successfully"
-  });
-});
+router.post("/", createAccount);
+
+router.put("/:id", updateAccount);
+
+router.delete("/:id", deleteAccount);
 
 export default router;
