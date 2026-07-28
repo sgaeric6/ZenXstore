@@ -1,29 +1,20 @@
 import express from "express";
 
+import {
+  createOrder,
+  getOrders,
+  getOrder,
+  updateOrder
+} from "../controllers/orderController.js";
+
 const router = express.Router();
 
-// Get all orders
-router.get("/", async (req, res) => {
-  res.json({
-    success: true,
-    orders: []
-  });
-});
+router.get("/", getOrders);
 
-// Create order
-router.post("/", async (req, res) => {
-  res.json({
-    success: true,
-    message: "Order created successfully"
-  });
-});
+router.get("/:id", getOrder);
 
-// Order details
-router.get("/:id", async (req, res) => {
-  res.json({
-    success: true,
-    orderId: req.params.id
-  });
-});
+router.post("/", createOrder);
+
+router.put("/:id", updateOrder);
 
 export default router;
