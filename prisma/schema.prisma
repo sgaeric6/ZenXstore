@@ -60,3 +60,34 @@ model Order {
 
   createdAt   DateTime    @default(now())
 }
+model Chat {
+  id          String   @id @default(cuid())
+
+  userId      String
+  supportId   String?
+
+  createdAt   DateTime @default(now())
+
+  messages    Message[]
+}
+
+model Message {
+  id          String   @id @default(cuid())
+
+  chatId      String
+
+  sender      String
+
+  message     String
+
+  createdAt   DateTime @default(now())
+}model Rating {
+
+  id          String @id @default(cuid())
+
+  stars       Int
+
+  comment     String?
+
+  createdAt   DateTime @default(now())
+}
