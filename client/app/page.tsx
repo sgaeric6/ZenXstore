@@ -1,23 +1,23 @@
-export default function HomePage() {
+export default function Home() {
   return (
-    <main
-      style={{
-        padding: "40px",
-        textAlign: "center",
-        fontFamily: "Arial"
-      }}
-    >
+    <main style={{ padding: 40 }}>
+
       <h1>🔥 ZenXStore</h1>
 
-      <p>Professional Free Fire Account Marketplace</p>
+      <h2>
+        Buy & Sell Verified Free Fire Accounts
+      </h2>
 
-      <br />
+      <p>
+        Secure transactions powered by Paystack.
+      </p>
 
-      <button>Buy Account</button>
+      <button>Buy Now</button>
 
-      <button style={{ marginLeft: 10 }}>
+      <button style={{ marginLeft: 15 }}>
         Sell Account
       </button>
+
     </main>
   );
 }
