@@ -1,29 +1,20 @@
 import express from "express";
 
+import {
+  dashboard,
+  approveRefund,
+  approveSupport,
+  uploadListing
+} from "../controllers/adminController.js";
+
 const router = express.Router();
 
-// Approve refund
-router.post("/refund/:id", async (req, res) => {
-  res.json({
-    success: true,
-    message: "Refund approved"
-  });
-});
+router.get("/dashboard", dashboard);
 
-// Approve support staff
-router.post("/support/:id/approve", async (req, res) => {
-  res.json({
-    success: true,
-    message: "Support account approved"
-  });
-});
+router.post("/refund/:id", approveRefund);
 
-// Upload Free Fire account
-router.post("/accounts", async (req, res) => {
-  res.json({
-    success: true,
-    message: "Account uploaded"
-  });
-});
+router.post("/support/:id", approveSupport);
+
+router.post("/listing", uploadListing);
 
 export default router;
