@@ -1,1 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
 
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  SUPPORT
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id         String   @id @default(cuid())
+  name       String
+  email      String   @unique
+  password   String
+  role       Role     @default(USER)
+  verified   Boolean  @default(false)
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  accounts   Account[]
+  orders     Order[]
+}
+
+model Account {
+  id            String   @id @default(cuid())
+
+  title         String
+  description   String
+
+  price         Float
+
+  gameLevel     String
+
+  image         String?
+
+  sellerId      String
+  seller        User @relation(fields: [sellerId], references: [id])
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  orders        Order[]
+}
+
+model Order {
+  id            String      @id @default(cuid())
+
+  buyerId       String
+  buyer         User        @relation(fields: [buyerId], references: [id])
+
+  accountId     String
+  account       Account     @relation(fields: [accountId], references: [id])
+
+  status        OrderStatus @default(PENDING)
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model Chat {
+  id          String      @id @default(cuid())
+
+  userId      String
+
+  supportId   String?
+
+  createdAt   DateTime    @default(now())
+
+  messages    Message[]
+}
+
+model Message {
+  id          String   @id @default(cuid())
+
+  chatId      String
+  chat        Chat @relation(fields: [chatId], references: [id])
+
+  sender      String
+
+  message     String
+
+  createdAt   DateTime @default(now())
+}
+
+model Rating {
+  id          String   @id @default(cuid())
+
+  stars       Int
+
+  comment     String?
+
+  createdAt   DateTime @default(now())
+}
