@@ -1,30 +1,40 @@
+"use client";
+
 import Link from "next/link";
 
 export default function Navbar() {
   return (
-    <nav
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        padding: "20px 50px",
-        background: "#111827",
-        alignItems: "center"
-      }}
-    >
-      <h2>ZenXStore</h2>
+    <header className="navbar">
+      <div className="navContainer">
 
-      <div
-        style={{
-          display: "flex",
-          gap: "20px"
-        }}
-      >
-        <Link href="/">Home</Link>
-        <Link href="/buy">Buy</Link>
-        <Link href="/sell">Sell</Link>
-        <Link href="/dashboard">Dashboard</Link>
-        <Link href="/login">Login</Link>
+        <Link href="/" className="logo">
+          <span className="logoGlow">Z</span>
+          <span>ZenXStore</span>
+        </Link>
+
+        <nav className="navLinks">
+          <Link href="/">Home</Link>
+          <Link href="/buy">Buy</Link>
+          <Link href="/sell">Sell</Link>
+          <Link href="/listings">Marketplace</Link>
+          <Link href="/support">Support</Link>
+        </nav>
+
+        <div className="navButtons">
+          <Link href="/login">
+            <button className="loginBtn">
+              Login
+            </button>
+          </Link>
+
+          <Link href="/signup">
+            <button className="signupBtn">
+              Get Started
+            </button>
+          </Link>
+        </div>
+
       </div>
-    </nav>
+    </header>
   );
 }
