@@ -1,1 +1,158 @@
+/* ===========================
+   ZENXSTORE PREMIUM NAVBAR
+=========================== */
 
+.navbar{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+z-index:9999;
+background:rgba(8,12,20,.82);
+backdrop-filter:blur(20px);
+border-bottom:1px solid rgba(255,255,255,.08);
+transition:.35s;
+}
+
+.navContainer{
+max-width:1400px;
+margin:auto;
+height:82px;
+padding:0 35px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+}
+
+.logo{
+display:flex;
+align-items:center;
+gap:14px;
+text-decoration:none;
+color:#fff;
+font-size:30px;
+font-weight:800;
+letter-spacing:.5px;
+}
+
+.logoGlow{
+width:48px;
+height:48px;
+border-radius:14px;
+display:flex;
+align-items:center;
+justify-content:center;
+background:linear-gradient(135deg,#00ff88,#00b8ff);
+font-weight:800;
+font-size:18px;
+color:#08111f;
+box-shadow:0 0 30px rgba(0,255,170,.45);
+}
+
+.green{
+color:#00ff88;
+}
+
+.navLinks{
+display:flex;
+align-items:center;
+gap:35px;
+}
+
+.navLinks a{
+color:#d4d9e2;
+text-decoration:none;
+font-size:16px;
+font-weight:600;
+transition:.3s;
+position:relative;
+}
+
+.navLinks a:hover{
+color:#00ff88;
+}
+
+.navLinks a::after{
+content:"";
+position:absolute;
+left:0;
+bottom:-8px;
+width:0;
+height:2px;
+background:#00ff88;
+transition:.3s;
+}
+
+.navLinks a:hover::after{
+width:100%;
+}
+
+.navButtons{
+display:flex;
+gap:15px;
+}
+
+.loginBtn{
+padding:12px 22px;
+background:transparent;
+border:1px solid rgba(255,255,255,.18);
+border-radius:12px;
+color:#fff;
+font-weight:700;
+cursor:pointer;
+transition:.3s;
+}
+
+.loginBtn:hover{
+background:rgba(255,255,255,.08);
+}
+
+.signupBtn{
+padding:12px 24px;
+background:linear-gradient(135deg,#00ff88,#00b8ff);
+border:none;
+border-radius:12px;
+font-weight:700;
+cursor:pointer;
+color:#08111f;
+box-shadow:0 0 25px rgba(0,255,170,.35);
+transition:.3s;
+}
+
+.signupBtn:hover{
+transform:translateY(-3px);
+box-shadow:0 10px 30px rgba(0,255,170,.45);
+}
+
+@media(max-width:900px){
+
+.navContainer{
+padding:0 18px;
+height:74px;
+}
+
+.logo{
+font-size:22px;
+}
+
+.logoGlow{
+width:42px;
+height:42px;
+font-size:15px;
+}
+
+.navLinks{
+display:none;
+}
+
+.navButtons{
+gap:10px;
+}
+
+.loginBtn,
+.signupBtn{
+padding:10px 15px;
+font-size:14px;
+}
+
+}
