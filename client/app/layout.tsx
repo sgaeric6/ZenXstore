@@ -1,9 +1,10 @@
+import "./globals.css";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
 export const metadata = {
   title: "ZenXStore",
-  description: "Professional Free Fire Account Marketplace"
+  description: "Buy and Sell Digital Assets Securely"
 };
 
 export default function RootLayout({
@@ -15,11 +16,10 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Navbar />
-
         {children}
-
         <Footer />
       </body>
     </html>
   );
 }
+
