@@ -1,10 +1,12 @@
 import "./globals.css";
+import "./navbar.css";
+
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
 export const metadata = {
   title: "ZenXStore",
-  description: "Buy and Sell Digital Assets Securely"
+  description: "Buy, Sell and Trade Gaming Accounts Securely",
 };
 
 export default function RootLayout({
@@ -15,11 +17,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+
         <Navbar />
-        {children}
+
+        <main>
+          {children}
+        </main>
+
         <Footer />
+
       </body>
     </html>
   );
 }
-
