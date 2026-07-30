@@ -1,9 +1,9 @@
 import Link from "next/link";
+import Features from "../components/Features";
 
 export default function Home() {
   return (
     <main>
-
       <section className="hero">
 
         <div className="heroContent">
@@ -67,35 +67,23 @@ export default function Home() {
             <h3>Latest Trades</h3>
 
             <div className="trade">
-
               <span>Netflix Premium</span>
-
               <strong>₦6,500</strong>
-
             </div>
 
             <div className="trade">
-
               <span>Spotify Premium</span>
-
               <strong>₦2,800</strong>
-
             </div>
 
             <div className="trade">
-
               <span>Canva Pro</span>
-
               <strong>₦3,200</strong>
-
             </div>
 
             <div className="trade">
-
               <span>ChatGPT Plus</span>
-
               <strong>₦18,000</strong>
-
             </div>
 
           </div>
@@ -103,6 +91,8 @@ export default function Home() {
         </div>
 
       </section>
+
+      <Features />
 
     </main>
   );
