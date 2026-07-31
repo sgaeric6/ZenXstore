@@ -1,5 +1,6 @@
 import prisma from "../config/prisma.js";
 import fetch from "node-fetch";
+import crypto from "crypto";
 
 const PAYSTACK_INIT_URL = "https://api.paystack.co/transaction/initialize";
 const PAYSTACK_VERIFY_URL = "https://api.paystack.co/transaction/verify";
@@ -122,4 +123,48 @@ export const verifyPayment = async (req, res) => {
 
 export const refundPayment = async (req, res) => {
   return res.json({ success: true, message: "Refund request received (admin will process)." });
+};
+
+export const webhookHandler = async (req, res) => {
+  try {
+    const signature = req.headers["x-paystack-signature"];
+    const rawBody = req.body; // Buffer because express.raw used
+
+    if (!signature) {
+      return res.status(400).send("Missing signature header");
+    }
+
+    const computed = crypto.createHmac("sha512", process.env.PAYSTACK_SECRET).update(rawBody).digest("hex");
+
+    if (computed !== signature) {
+      // signature mismatch
+      return res.status(400).send("Invalid signature");
+    }
+
+    const event = JSON.parse(rawBody.toString());
+
+    // Paystack sends event.event and event.data
+    const ev = event.event;
+    const data = event.data;
+
+    if (ev === "charge.success" || (ev === "transaction.success")) {
+      const reference = data.reference;
+      const payment = await prisma.payment.findUnique({ where: { reference } });
+      if (payment) {
+        const paid = data.status === "success";
+        await prisma.payment.update({ where: { id: payment.id }, data: { status: paid ? "SUCCESS" : data.status, paidAt: paid ? new Date(data.paid_at) : null } });
+        if (paid) {
+          const order = await prisma.order.update({ where: { id: payment.orderId }, data: { status: "PAID" } });
+          await prisma.account.update({ where: { id: order.accountId }, data: { status: "SOLD" } });
+        }
+      }
+    }
+
+    // respond 200 to acknowledge
+    res.status(200).send("ok");
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error(err);
+    res.status(500).send("error");
+  }
 };
