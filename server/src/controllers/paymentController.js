@@ -1,6 +1,5 @@
+import prisma from "../config/prisma.js";
 import fetch from "node-fetch";
-import listingService from "../services/listingService.js";
-import { addInvoice, updateInvoice } from "../utils/invoiceStore.js";
 
 const PAYSTACK_INIT_URL = "https://api.paystack.co/transaction/initialize";
 const PAYSTACK_VERIFY_URL = "https://api.paystack.co/transaction/verify";
@@ -10,16 +9,46 @@ export const initializePayment = async (req, res) => {
     const { accountId, email } = req.body;
     if (!accountId || !email) return res.status(400).json({ success: false, message: "accountId and email required" });
 
-    const account = await listingService.getListing(accountId);
+    const account = await prisma.account.findUnique({ where: { id: accountId } });
     if (!account) return res.status(404).json({ success: false, message: "Account not found" });
 
-    const amountKobo = Math.round((account.price || 0) * 100);
+    // ensure buyer user exists (create guest buyer if not)
+    let buyer = await prisma.user.findUnique({ where: { email } });
+    if (!buyer) {
+      buyer = await prisma.user.create({
+        data: {
+          name: "Guest Buyer",
+          email,
+          password: Math.random().toString(36).slice(2),
+          verified: false
+        }
+      });
+    }
 
-    const body = {
-      email,
-      amount: amountKobo,
-      metadata: { accountId }
-    };
+    // create order
+    const order = await prisma.order.create({
+      data: {
+        amount: account.price,
+        status: "PENDING",
+        buyerId: buyer.id,
+        accountId: account.id
+      }
+    });
+
+    // create payment record (placeholder, reference will be updated)
+    let payment = await prisma.payment.create({
+      data: {
+        orderId: order.id,
+        reference: "",
+        amount: account.price,
+        status: "PENDING",
+        provider: "PAYSTACK"
+      }
+    });
+
+    // Initialize Paystack transaction
+    const amountKobo = Math.round(account.price * 100);
+    const body = { email, amount: amountKobo, metadata: { orderId: order.id, accountId: account.id } };
 
     const initRes = await fetch(PAYSTACK_INIT_URL, {
       method: "POST",
@@ -37,10 +66,10 @@ export const initializePayment = async (req, res) => {
 
     const { authorization_url, reference } = initJson.data;
 
-    // store a lightweight invoice
-    addInvoice({ reference, accountId, email, amount: amountKobo / 100, status: "PENDING", createdAt: new Date().toISOString() });
+    // update payment with reference
+    payment = await prisma.payment.update({ where: { id: payment.id }, data: { reference } });
 
-    return res.json({ success: true, authorization_url, reference });
+    return res.json({ success: true, authorization_url, reference, orderId: order.id });
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error(err);
@@ -65,9 +94,25 @@ export const verifyPayment = async (req, res) => {
 
     const data = verifyJson.data;
 
-    const updated = updateInvoice(reference, { status: data.status === "success" ? "PAID" : data.status, paidAt: data.paid_at || new Date().toISOString(), paystack: data });
+    // find payment by reference
+    const payment = await prisma.payment.findUnique({ where: { reference } });
+    if (!payment) {
+      // nothing to update
+      return res.json({ success: true, data });
+    }
 
-    return res.json({ success: true, data: updated || data });
+    const paid = data.status === "success";
+
+    await prisma.payment.update({ where: { id: payment.id }, data: { status: paid ? "SUCCESS" : data.status, paidAt: paid ? new Date(data.paid_at) : null } });
+
+    // update order status
+    if (paid) {
+      const order = await prisma.order.update({ where: { id: payment.orderId }, data: { status: "PAID" } });
+      // mark account as SOLD (or RESERVED based on business rules)
+      await prisma.account.update({ where: { id: order.accountId }, data: { status: "SOLD" } });
+    }
+
+    return res.json({ success: true, data });
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error(err);
