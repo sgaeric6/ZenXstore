@@ -1,5 +1,5 @@
 import express from "express";
-import auth from "../middleware/auth.js";
+import adminKey from "../middleware/adminKey.js";
 
 import {
   getListings,
@@ -15,10 +15,11 @@ router.get("/", getListings);
 
 router.get("/:id", getListing);
 
-router.post("/", auth, createListing);
+// protected by adminKey middleware (ADMIN_KEY env) for simple admin access without full auth
+router.post("/", adminKey, createListing);
 
-router.put("/:id", auth, updateListing);
+router.put("/:id", adminKey, updateListing);
 
-router.delete("/:id", auth, deleteListing);
+router.delete("/:id", adminKey, deleteListing);
 
 export default router;
