@@ -1,0 +1,13 @@
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[build]
+  base    = "client"
+  command = "npm ci && npm run build"
+  # publish intentionally omitted because the Netlify Next.js plugin controls the output location
+
+# Optional: if you prefer a static export (no SSR/API routes), use this config instead:
+# [build]
+#   base = "client"
+#   command = "npm ci && npm run build:export"
+#   publish = "client/out"
