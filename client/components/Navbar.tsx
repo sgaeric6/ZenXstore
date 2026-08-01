@@ -10,9 +10,7 @@ export default function Navbar() {
 
         <Link href="/" className="logo">
 
-          <div className="logoGlow">
-            ZX
-          </div>
+          <div className="logoGlow">ZX</div>
 
           <span>
             Zen<span className="green">X</span>Store
@@ -21,29 +19,21 @@ export default function Navbar() {
         </Link>
 
         <nav className="navLinks">
-
           <Link href="/">Home</Link>
-
           <Link href="/marketplace">Marketplace</Link>
-
           <Link href="/categories">Categories</Link>
-
           <Link href="/sell">Sell</Link>
-
           <Link href="/support">Support</Link>
-
         </nav>
 
         <div className="navButtons">
+          <Link href="/login">
+            <button className="loginBtn">Login</button>
+          </Link>
 
-          <button className="loginBtn">
-            Login
-          </button>
-
-          <button className="signupBtn">
-            Get Started
-          </button>
-
+          <Link href="/signup">
+            <button className="signupBtn">Get Started</button>
+          </Link>
         </div>
 
       </div>
