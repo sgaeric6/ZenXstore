@@ -1,5 +1,5 @@
 import express from "express";
-import auth from "../middleware/auth.js";
+import authenticate, { requireAdmin } from "../middleware/auth.js";
 
 import {
   getListings,
@@ -15,10 +15,11 @@ router.get("/", getListings);
 
 router.get("/:id", getListing);
 
-router.post("/", auth, createListing);
+// Protected admin routes for creating/updating/deleting listings
+router.post("/", authenticate, requireAdmin, createListing);
 
-router.put("/:id", auth, updateListing);
+router.put("/:id", authenticate, requireAdmin, updateListing);
 
-router.delete("/:id", auth, deleteListing);
+router.delete("/:id", authenticate, requireAdmin, deleteListing);
 
 export default router;
