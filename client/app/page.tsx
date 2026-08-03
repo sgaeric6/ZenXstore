@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Features from "../components/Features";
 
 async function fetchListings() {
   try {
@@ -15,7 +14,9 @@ async function fetchListings() {
 
 export default async function Home() {
   const listings = await fetchListings();
-  const latest = Array.isArray(listings) ? listings.slice(0, 8) : [];
+  // Filter to show only accounts uploaded by admins
+  const adminListings = Array.isArray(listings) ? listings.filter((i) => i.seller?.role === "ADMIN") : [];
+  const latest = adminListings.slice(0, 8);
 
   const fmt = (value) => {
     try {
@@ -30,76 +31,8 @@ export default async function Home() {
   };
 
   return (
-    <main>
-      <section className="hero">
-        <div className="heroContent">
-          <span className="heroBadge">🚀 Trusted by 50,000+ Users</span>
-
-          <h1>
-            The Future of
-            <span> Digital Marketplace</span>
-          </h1>
-
-          <p>
-            Buy and sell Free Fire and other game accounts securely. Admins upload
-            account details and images — buyers reserve, pay, and receive credentials
-            securely after successful payment.
-          </p>
-
-          <div className="heroButtons">
-            <Link href="/buy">
-              <button className="greenBtn">Start Buying</button>
-            </Link>
-
-            <Link href="/sell">
-              <button className="outlineBtn">Sell Now</button>
-            </Link>
-          </div>
-
-          <div className="heroStats">
-            <div>
-              <h2>₦120M+</h2>
-              <span>Transactions</span>
-            </div>
-
-            <div>
-              <h2>50K+</h2>
-              <span>Customers</span>
-            </div>
-
-            <div>
-              <h2>99.9%</h2>
-              <span>Success Rate</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="heroCard">
-          <div className="tradeCard">
-            <h3>Latest Trades</h3>
-
-            <div className="trade">
-              <span>Netflix Premium</span>
-              <strong>₦6,500</strong>
-            </div>
-
-            <div className="trade">
-              <span>Spotify Premium</span>
-              <strong>₦2,800</strong>
-            </div>
-
-            <div className="trade">
-              <span>Canva Pro</span>
-              <strong>₦3,200</strong>
-            </div>
-
-            <div className="trade">
-              <span>ChatGPT Plus</span>
-              <strong>₦18,000</strong>
-            </div>
-          </div>
-        </div>
-      </section>
+    <main style={{ padding: 20 }}>
+      <h1>Available Accounts (Admin uploads)</h1>
 
       <section className="listingsSection">
         <div className="sectionHeader">
@@ -109,7 +42,7 @@ export default async function Home() {
 
         <div className="cardsGrid">
           {latest.length === 0 && (
-            <p className="muted">No listings yet — check back later.</p>
+            <p className="muted">No admin-uploaded listings yet — check back later.</p>
           )}
 
           {latest.map((item) => {
@@ -153,8 +86,6 @@ export default async function Home() {
           })}
         </div>
       </section>
-
-      <Features />
     </main>
   );
 }
