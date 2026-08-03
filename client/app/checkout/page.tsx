@@ -119,7 +119,7 @@ export default function CheckoutPage() {
 
       const res = await fetch(`${API_BASE}/api/payments/notify-admin`, {
         method: "POST",
-        headers: ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: fd
       });
 
