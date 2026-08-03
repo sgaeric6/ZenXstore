@@ -72,6 +72,7 @@ model User {
   chats Chat[]
   tickets SupportTicket[]
   messages Message[]
+  images Image[]
 }
 
 model Account {
@@ -79,7 +80,7 @@ model Account {
   title String
   description String
   game String @default("Free Fire")
-  price Float
+  price Decimal @db.Decimal(10,2)
   level Int
   rank String
   region String
@@ -88,7 +89,6 @@ model Account {
   rareBundles String?
   evoGuns String?
   loginMethod String
-  images String[]
   featured Boolean @default(false)
   views Int @default(0)
   favorites Int @default(0)
@@ -98,14 +98,24 @@ model Account {
   seller User @relation(fields: [sellerId], references: [id])
 
   orders Order[]
+  images Image[]
+
+  reservedUntil DateTime?
+  reservedById String?
+  reservedBy User? @relation("ReservedBy", fields: [reservedById], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([sellerId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([price])
 }
 
 model Order {
   id String @id @default(cuid())
-  amount Float
+  amount Decimal @db.Decimal(10,2)
   status OrderStatus @default(PENDING)
 
   buyerId String
@@ -126,7 +136,7 @@ model Payment {
   order Order @relation(fields: [orderId], references: [id])
   reference String @unique
   provider String @default("PAYSTACK")
-  amount Float
+  amount Decimal @db.Decimal(10,2)
   currency String @default("NGN")
   status PaymentStatus @default(PENDING)
   paidAt DateTime?
@@ -218,4 +228,19 @@ model AdminLog {
   description String?
 
   createdAt DateTime @default(now())
+}
+
+model Image {
+  id String @id @default(cuid())
+  url String
+  publicId String?
+  account Account @relation(fields: [accountId], references: [id])
+  accountId String
+  uploadedById String?
+  uploadedBy User? @relation(fields: [uploadedById], references: [id])
+  approved Boolean @default(false)
+  uploadedAt DateTime @default(now())
+
+  @@index([accountId])
+  @@index([uploadedById])
 }
