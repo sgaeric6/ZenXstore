@@ -4,13 +4,35 @@ export const getAllListings = async () => {
   return await prisma.account.findMany({
     orderBy: {
       createdAt: "desc"
+    },
+    include: {
+      // include seller info so client can check seller.role (e.g. ADMIN)
+      seller: {
+        select: {
+          id: true,
+          name: true,
+          role: true
+        }
+      },
+      // include images so client can display the first image
+      images: true
     }
   });
 };
 
 export const getListing = async (id) => {
   return await prisma.account.findUnique({
-    where: { id }
+    where: { id },
+    include: {
+      seller: {
+        select: {
+          id: true,
+          name: true,
+          role: true
+        }
+      },
+      images: true
+    }
   });
 };
 
