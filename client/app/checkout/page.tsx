@@ -8,15 +8,15 @@ export default function CheckoutPage() {
   const router = useRouter();
   const orderId = search.get("orderId");
 
-  const [loading, setLoading] = useState(true);
-  const [order, setOrder] = useState(null);
-  const [bank, setBank] = useState(null);
-  const [countdown, setCountdown] = useState(null);
-  const [message, setMessage] = useState(null);
-  const [proofFile, setProofFile] = useState(null);
-  const [providerRef, setProviderRef] = useState("");
-  const [verifying, setVerifying] = useState(false);
-  const [notifying, setNotifying] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [order, setOrder] = useState<any | null>(null);
+  const [bank, setBank] = useState<any | null>(null);
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [proofFile, setProofFile] = useState<File | null>(null);
+  const [providerRef, setProviderRef] = useState<string>("");
+  const [verifying, setVerifying] = useState<boolean>(false);
+  const [notifying, setNotifying] = useState<boolean>(false);
 
   const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
 
@@ -38,7 +38,7 @@ export default function CheckoutPage() {
 
         const reserved = new Date(data.order.reservedUntil);
         setCountdown(Math.max(0, reserved.getTime() - Date.now()));
-      } catch (err) {
+      } catch (err: any) {
         setMessage(err.message);
       } finally {
         setLoading(false);
@@ -64,12 +64,12 @@ export default function CheckoutPage() {
     return () => clearInterval(t);
   }, [countdown]);
 
-  function formatTime(ms) {
+  function formatTime(ms: number | null) {
     if (!ms) return "00:00";
     const total = Math.max(0, Math.floor(ms / 1000));
     const mins = Math.floor(total / 60);
     const secs = total % 60;
-    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    return `${String(mins).padStart(2, "0")}:{${String(secs).padStart(2, "0")}`.replace('{', '').replace('}', '');
   }
 
   const copyAccount = async () => {
@@ -97,7 +97,7 @@ export default function CheckoutPage() {
       setMessage("Payment verified — order completed.");
       // redirect to success or show delivery link
       setTimeout(() => router.push(`/orders/${orderId}`), 1200);
-    } catch (err) {
+    } catch (err: any) {
       setMessage(err.message);
     } finally {
       setVerifying(false);
@@ -114,8 +114,8 @@ export default function CheckoutPage() {
     try {
       const token = localStorage.getItem("token") || "";
       const fd = new FormData();
-      fd.append("orderId", orderId);
-      fd.append("proof", proofFile);
+      fd.append("orderId", orderId || "");
+      fd.append("proof", proofFile as Blob);
 
       const res = await fetch(`${API_BASE}/api/payments/notify-admin`, {
         method: "POST",
@@ -126,7 +126,7 @@ export default function CheckoutPage() {
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.message || "Notify failed");
       setMessage("Admin notified. Your payment will be reviewed shortly.");
-    } catch (err) {
+    } catch (err: any) {
       setMessage(err.message);
     } finally {
       setNotifying(false);
@@ -171,7 +171,7 @@ export default function CheckoutPage() {
               <input value={providerRef} onChange={(e) => setProviderRef(e.target.value)} placeholder="e.g. OPAY_TX_REF" />
 
               <label>Upload proof (screenshot)</label>
-              <input type="file" accept="image/*,application/pdf" onChange={(e) => setProofFile(e.target.files[0])} />
+              <input type="file" accept="image/*,application/pdf" onChange={(e) => setProofFile(e.target.files ? e.target.files[0] : null)} />
 
               <div className="actions">
                 <button onClick={handleVerify} disabled={verifying || !providerRef}>{verifying ? "Verifying..." : "Verify with reference"}</button>
