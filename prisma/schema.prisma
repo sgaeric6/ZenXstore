@@ -104,6 +104,9 @@ model Account {
   reservedById String?
   reservedBy User? @relation("ReservedBy", fields: [reservedById], references: [id])
 
+  // encrypted credentials (store encrypted blob, decrypt only for delivery)
+  credentialsEncrypted String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -125,6 +128,8 @@ model Order {
   account Account @relation(fields: [accountId], references: [id])
 
   payment Payment?
+
+  deliveries Delivery[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -243,4 +248,32 @@ model Image {
 
   @@index([accountId])
   @@index([uploadedById])
+}
+
+model DeliveryToken {
+  id String @id @default(cuid())
+  token String @unique
+  orderId String?
+  order Order? @relation(fields: [orderId], references: [id])
+  accountId String?
+  account Account? @relation(fields: [accountId], references: [id])
+  expiresAt DateTime
+  used Boolean @default(false)
+  deliveredAt DateTime?
+  deliveredToId String?
+
+  createdAt DateTime @default(now())
+}
+
+model Delivery {
+  id String @id @default(cuid())
+  orderId String
+  order Order @relation(fields: [orderId], references: [id])
+  accountId String
+  account Account @relation(fields: [accountId], references: [id])
+  deliveredToId String
+  deliveredBy String
+  notes String?
+
+  createdAt DateTime @default(now())
 }
