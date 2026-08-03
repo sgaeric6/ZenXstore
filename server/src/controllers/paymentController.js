@@ -1,5 +1,6 @@
 import prisma from "../config/prisma.js";
 import crypto from "crypto";
+import { sendDeliveryEmail } from "../utils/mail.js";
 
 const OPAY_BASE = process.env.OPAY_BASE_URL || "https://api.opay.com"; // replace with actual OPay API base if different
 const OPAY_SECRET = process.env.OPAY_SECRET;
@@ -89,8 +90,12 @@ export const notifyAdmin = async (req, res) => {
     const order = await prisma.order.findUnique({ where: { id: orderId } });
     if (!order) return res.status(404).json({ success: false, message: "Order not found" });
 
-    // set order to PROCESSING to indicate awaiting manual review
-    await prisma.order.update({ where: { id: orderId }, data: { status: "PROCESSING" } });
+    // if file middleware added, save proof URL
+    if (req.file && req.file.path) {
+      await prisma.order.update({ where: { id: orderId }, data: { proofUrl: req.file.path, status: "PROCESSING" } });
+    } else {
+      await prisma.order.update({ where: { id: orderId }, data: { status: "PROCESSING" } });
+    }
 
     await prisma.adminLog.create({ data: { adminId: "SYSTEM", action: "MANUAL_PAYMENT_NOTIFY", targetId: orderId, description: `Buyer requested manual verification for order ${orderId}` } });
 
@@ -116,6 +121,16 @@ export const adminApprovePayment = async (req, res) => {
       const token = crypto.randomBytes(24).toString("hex");
       await tx.deliveryToken.create({ data: { token, orderId: order.id, accountId: order.accountId, expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) } });
       await tx.delivery.create({ data: { orderId: order.id, accountId: order.accountId, deliveredToId: order.buyerId, deliveredBy: "ADMIN", notes: "Manually approved by admin" } });
+
+      // send email with delivery link if buyer email available
+      const buyer = await tx.user.findUnique({ where: { id: order.buyerId } });
+      if (buyer && buyer.email) {
+        try {
+          await sendDeliveryEmail(buyer.email, { orderId: order.id, token });
+        } catch (mailErr) {
+          console.warn("Failed to send delivery email", mailErr);
+        }
+      }
     });
 
     return res.json({ success: true, message: "Order approved and marked as PAID" });
@@ -134,5 +149,15 @@ async function finalizeSuccessfulPayment(orderId, providerReference, paidAmount)
     const token = crypto.randomBytes(24).toString("hex");
     await tx.deliveryToken.create({ data: { token, orderId, accountId: order.accountId, expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) } });
     await tx.delivery.create({ data: { orderId, accountId: order.accountId, deliveredToId: order.buyerId, deliveredBy: "SYSTEM", notes: `Paid via OPAY ref ${providerReference}` } });
+
+    // send email with delivery link to buyer
+    const buyer = await tx.user.findUnique({ where: { id: order.buyerId } });
+    if (buyer && buyer.email) {
+      try {
+        await sendDeliveryEmail(buyer.email, { orderId: order.id, token });
+      } catch (mailErr) {
+        console.warn("Failed to send delivery email", mailErr);
+      }
+    }
   });
 }
