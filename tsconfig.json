@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {},
+  "include": [
+    "client/next-env.d.ts",
+    "client/**/*.ts",
+    "client/**/*.tsx"
+  ],
+  "plugins": [
+    { "name": "next" }
+  ]
+}
