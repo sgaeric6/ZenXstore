@@ -3,11 +3,25 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 
-export default function ListingCard({ item }) {
+type Image = { url?: string };
+
+type ListingItem = {
+  id: string;
+  reservedUntil?: string | null;
+  status?: string;
+  images?: Image[];
+  title?: string;
+  price?: number | string;
+  amount?: number | string;
+  region?: string;
+  description?: string;
+};
+
+export default function ListingCard({ item }: { item: ListingItem }) {
   const [reservedUntil, setReservedUntil] = useState(item.reservedUntil || null);
   const [status, setStatus] = useState(item.status || "AVAILABLE");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setReservedUntil(item.reservedUntil || null);
@@ -20,7 +34,7 @@ export default function ListingCard({ item }) {
     return t > Date.now();
   };
 
-  const fmt = (value) => {
+  const fmt = (value: number | string | undefined) => {
     try {
       return new Intl.NumberFormat("en-NG", {
         style: "currency",
@@ -52,8 +66,8 @@ export default function ListingCard({ item }) {
       // expect server to return reservedUntil and status
       if (data.reservedUntil) setReservedUntil(data.reservedUntil);
       if (data.status) setStatus(data.status);
-    } catch (err) {
-      setError(err.message);
+    } catch (err: any) {
+      setError(err?.message ?? String(err));
     } finally {
       setLoading(false);
     }
@@ -86,7 +100,7 @@ export default function ListingCard({ item }) {
         <p className="desc">{item.description?.slice(0, 100) || "No description"}</p>
 
         {isReserved() && (
-          <div className="reservedNote">Reserved until {new Date(reservedUntil).toLocaleString()}</div>
+          <div className="reservedNote">Reserved until {new Date(reservedUntil as string).toLocaleString()}</div>
         )}
 
         <div className="cardActions">
